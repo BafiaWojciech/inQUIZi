@@ -3,6 +3,7 @@ package com.bafia.inquizi.register.email;
 import com.bafia.inquizi.register.dto.ConfirmationCodeRequestDTO;
 import com.bafia.inquizi.user.User;
 import com.bafia.inquizi.user.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,6 @@ import java.util.*;
 public class ConfirmationCodeService {
     private final ConfirmationCodeRepository confirmationCodeRepository;
     private final UserService userService;
-
 
     public void generateRandomCode(User user) {
         if (confirmationCodeRepository.findConfirmationCodeByUser(user).isPresent())
@@ -49,41 +49,31 @@ public class ConfirmationCodeService {
                         .build());
     }
 
-    public void confirm(String code, User user) {
-
-
-    }
-
     public ResponseEntity<Void> confirm(ConfirmationCodeRequestDTO confirmationCodeRequestDTO) {
         String code = confirmationCodeRequestDTO.getCode();
-        User user = userService.getUserByEmail(confirmationCodeRequestDTO.getEmail());
-
-        ConfirmationCode code_entity;
         try {
-            code_entity = confirmationCodeRepository.findConfirmationCodeByUser(user).get();
-        } catch (NoSuchElementException e) {
+            User user = userService.getUserByEmail(confirmationCodeRequestDTO.getEmail());
+            ConfirmationCode code_entity = confirmationCodeRepository.findConfirmationCodeByUser(user).get();
+            if (!code_entity.getCode().equals(code) || code_entity.getExpiration().isBefore(ZonedDateTime.now()))
+                throw new Exception();
+            user.setEnabled(true);
+            confirmationCodeRepository.deleteByUser(user);
+            userService.save(user);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if (!code_entity.getCode().equals(code)
-                || code_entity.getExpiration().isBefore(ZonedDateTime.now())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        user.setEnabled(true);
-        //confirmationCodeRepository.deleteConfirmationCodeByUser(user);
-        userService.save(user);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     public ResponseEntity<Void> resendConfirmationCode(ConfirmationCodeRequestDTO confirmationCodeRequestDTO) {
         try {
             User u = userService.findUserByEmail(confirmationCodeRequestDTO.getEmail()).get();
+            if(u.isEnabled()) throw new Exception();
             generateRandomCode(u);
-        } catch (NoSuchElementException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
