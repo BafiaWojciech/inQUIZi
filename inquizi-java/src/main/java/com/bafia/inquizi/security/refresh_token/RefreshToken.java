@@ -1,4 +1,4 @@
-package com.bafia.inquizi.security;
+package com.bafia.inquizi.security.refresh_token;
 
 import com.bafia.inquizi.user.User;
 import jakarta.persistence.*;

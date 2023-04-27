@@ -1,10 +1,8 @@
-package com.bafia.inquizi.register.email;
+package com.bafia.inquizi.register.confirmation;
 
 import com.bafia.inquizi.register.dto.ConfirmationCodeRequestDTO;
 import com.bafia.inquizi.user.User;
 import com.bafia.inquizi.user.UserService;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.bafia.inquizi.user;
 
-import com.bafia.inquizi.security.RefreshToken;
+import com.bafia.inquizi.security.refresh_token.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

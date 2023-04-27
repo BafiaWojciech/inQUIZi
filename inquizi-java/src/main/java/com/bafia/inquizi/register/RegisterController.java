@@ -2,10 +2,8 @@ package com.bafia.inquizi.register;
 
 import com.bafia.inquizi.register.dto.ConfirmationCodeRequestDTO;
 import com.bafia.inquizi.register.dto.RegisterRequestDTO;
-import com.bafia.inquizi.register.email.ConfirmationCodeService;
-import com.bafia.inquizi.user.User;
+import com.bafia.inquizi.register.confirmation.ConfirmationCodeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

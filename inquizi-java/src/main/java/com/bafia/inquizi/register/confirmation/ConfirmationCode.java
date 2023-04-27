@@ -1,4 +1,4 @@
-package com.bafia.inquizi.register.email;
+package com.bafia.inquizi.register.confirmation;
 
 import com.bafia.inquizi.user.User;
 import jakarta.persistence.*;
