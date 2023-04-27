@@ -1,10 +1,10 @@
-package com.bafia.inquizi.security.email;
+package com.bafia.inquizi.register.email;
 
 import com.bafia.inquizi.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Random;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -20,6 +20,9 @@ public class ConfirmationCode {
 
     @Column(unique = true)
     private String code;
+
+    @Column
+    private ZonedDateTime expiration;
 
     @OneToOne
     @JoinColumn(nullable = false, name = "user_id")

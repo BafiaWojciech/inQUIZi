@@ -18,16 +18,16 @@ public class UserService {
     }
 
     public Optional<User> findUserByEmail(String email) {
-        return userRepository.findJwtUserByEmail(email);
+        return userRepository.findUserByEmail(email);
     }
 
-    public User getJwtUserByEmail(String email) {
-        return userRepository.findJwtUserByEmail(email)
+    public User getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found by email!"));
     }
 
-    public User getJwtUserByUsername(String username) {
-        return userRepository.findJwtUserByUsername(username)
+    public User getUserByUsername(String username) {
+        return userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found by username!"));
     }
 }

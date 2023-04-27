@@ -15,7 +15,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        com.bafia.inquizi.user.User user = userService.getJwtUserByEmail(email);
+        com.bafia.inquizi.user.User user = userService.getUserByEmail(email);
 
         return new User(
                 user.getUsername(), user.getPassword(), user.isEnabled(),
