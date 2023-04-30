@@ -29,7 +29,7 @@ public class RefreshToken {
     @Column
     private ZonedDateTime expiration;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 }

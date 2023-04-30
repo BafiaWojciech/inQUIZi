@@ -44,8 +44,8 @@ public class User implements UserDetails {
     @Builder.Default
     private boolean enabled = false;
 
-    @OneToOne(mappedBy = "user")
-    private RefreshToken refreshToken;
+    @OneToMany(mappedBy = "user")
+    private List<RefreshToken> refreshToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
