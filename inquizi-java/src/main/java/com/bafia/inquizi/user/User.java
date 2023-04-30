@@ -1,5 +1,6 @@
 package com.bafia.inquizi.user;
 
+import com.bafia.inquizi.course.Course;
 import com.bafia.inquizi.security.refresh_token.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,7 +46,19 @@ public class User implements UserDetails {
     private boolean enabled = false;
 
     @OneToMany(mappedBy = "user")
-    private List<RefreshToken> refreshToken;
+    private List<RefreshToken> refreshToken = new ArrayList<>();;
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @JoinTable(name = "courses_teachers",
+            joinColumns = { @JoinColumn(name = "teacher_id") },
+            inverseJoinColumns = { @JoinColumn(name = "course_id") })
+    private List<Course> coursesAsTeacher = new ArrayList<>();
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @JoinTable(name = "courses_students",
+            joinColumns = { @JoinColumn(name = "student_id") },
+            inverseJoinColumns = { @JoinColumn(name = "course_id") })
+    private List<Course> coursesAsStudent = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
