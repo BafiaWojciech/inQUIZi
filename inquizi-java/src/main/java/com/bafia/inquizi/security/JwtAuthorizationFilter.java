@@ -2,6 +2,7 @@ package com.bafia.inquizi.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,12 +45,16 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (token == null || !token.startsWith(TOKEN_PREFIX)) {
             return null;
         }
-        String email = JWT.require(Algorithm.HMAC256(secret))
-                .build()
-                .verify(token.replace(TOKEN_PREFIX, ""))
-                .getSubject();
-        if (email == null) return null;
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-        return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+        try {
+            String email = JWT.require(Algorithm.HMAC256(secret))
+                    .build()
+                    .verify(token.replace(TOKEN_PREFIX, ""))
+                    .getSubject();
+            if (email == null) return null;
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+        } catch (TokenExpiredException e) {
+            return null;
+        }
     }
 }

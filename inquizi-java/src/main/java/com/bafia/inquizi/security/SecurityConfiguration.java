@@ -1,8 +1,6 @@
 package com.bafia.inquizi.security;
 
-import com.bafia.inquizi.security.AuthSuccessHandler;
-import com.bafia.inquizi.security.JsonObjectAuthenticationFilter;
-import com.bafia.inquizi.security.JwtAuthorizationFilter;
+import com.bafia.inquizi.user.Role;
 import com.bafia.inquizi.user.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,15 +9,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -43,8 +43,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests((auth) -> {
                     try {
                         auth
-                                .requestMatchers("/api/user").hasRole("USER")
-                                .anyRequest().permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/signup/**").permitAll()
+                                .anyRequest().authenticated()
                                 .and()
                                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                                 .and()

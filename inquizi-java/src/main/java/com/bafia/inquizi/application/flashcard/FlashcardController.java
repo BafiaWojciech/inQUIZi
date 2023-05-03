@@ -1,4 +1,4 @@
-package com.bafia.inquizi.flashcard;
+package com.bafia.inquizi.application.flashcard;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -18,8 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         com.bafia.inquizi.user.User user = userService.getUserByEmail(email);
 
         return new User(
-                user.getUsername(), user.getPassword(), user.isEnabled(),
+                user.getEmail(), user.getPassword(), user.isEnabled(),
                 true, true, true, user.getAuthorities());
     }
-
 }

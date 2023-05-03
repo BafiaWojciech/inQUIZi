@@ -1,6 +1,6 @@
 package com.bafia.inquizi.user;
 
-import com.bafia.inquizi.course.Course;
+import com.bafia.inquizi.application.course.Course;
 import com.bafia.inquizi.security.refresh_token.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;

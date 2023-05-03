@@ -1,4 +1,4 @@
-package com.bafia.inquizi.flashcard;
+package com.bafia.inquizi.application.flashcard;
 
 public record FlashcardDTO(
         String front,

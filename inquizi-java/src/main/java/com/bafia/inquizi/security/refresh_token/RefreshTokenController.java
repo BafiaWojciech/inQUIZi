@@ -1,4 +1,4 @@
-package com.bafia.inquizi.security.web;
+package com.bafia.inquizi.security.refresh_token;
 
 import com.bafia.inquizi.security.dto.JwtRefreshRequestDTO;
 import com.bafia.inquizi.security.dto.JwtResponseDTO;

@@ -30,7 +30,7 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         UserDetails principal = (UserDetails) authentication.getPrincipal();
-        var user = userService.getUserByUsername(principal.getUsername());
+        var user = userService.getUserByEmail(principal.getUsername());
         String token = jwtUtils.createJwt(user.getEmail());
         String refreshToken = refreshTokenService.createToken(user);
         response.addHeader("Authorization", "Bearer " + token);
