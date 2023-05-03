@@ -26,6 +26,17 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getAll(principal));
     }
 
+    @PutMapping("/{id}/change-access")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> changeAccess(Principal principal, @PathVariable String id, @RequestBody CourseDTO courseDTO) {
+        return courseService.changeAccess(principal, id, courseDTO);
+    }
+
+    @PutMapping("/{id}/join")
+    public ResponseEntity<Void> join(Principal principal, @PathVariable String id) {
+        return courseService.join(principal, id);
+    }
+
     @PutMapping("/{id}/leave")
     public ResponseEntity<Void> leave(Principal principal, @PathVariable String id) {
         return courseService.leave(principal, id);
@@ -37,4 +48,9 @@ public class CourseController {
         return courseService.delete(principal, id);
     }
 
+    @DeleteMapping("/{courseId}/students/{email}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> deleteStudent(Principal principal, @PathVariable String courseId, @PathVariable String email) {
+        return courseService.deleteStudent(principal, courseId, email);
+    }
 }

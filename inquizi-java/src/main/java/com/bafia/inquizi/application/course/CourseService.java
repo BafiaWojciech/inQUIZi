@@ -7,13 +7,11 @@ import com.bafia.inquizi.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +44,7 @@ public class CourseService {
         course.setName(courseDTO.name());
         course.setTeachers(teachers);
         course.setStudents(students);
+        course.setAccessToCourse(AccessToCourse.CLOSED);
         courseRepository.save(course);
         return mapper.apply(course);
     }
@@ -65,20 +64,18 @@ public class CourseService {
         if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
             Course c = courseRepository.findCourseByUuid(id).get();
             //usunięcie kursu przez nauczyciela
-            if(c.getTeachers().contains(userRepository.findUserByEmail(email).get())) {
-                if(c.getTeachers().size() == 1) {
+            if (c.getTeachers().contains(userRepository.findUserByEmail(email).get())) {
+                if (c.getTeachers().size() == 1) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 } else {
                     c.getTeachers().remove(userRepository.findUserByEmail(email).get());
                     courseRepository.save(c);
-                    System.out.println("::info::Opuszczenie kursu przez nauczyciela " + email + " (nie jest jedyny)");
                 }
             }
             //opuszczenie kursu przez ucznia
-            if(c.getStudents().contains(userRepository.findUserByEmail(email).get())) {
+            if (c.getStudents().contains(userRepository.findUserByEmail(email).get())) {
                 c.getStudents().remove(userRepository.findUserByEmail(email).get());
                 courseRepository.save(c);
-                System.out.println("::info::Opuszczenie kursu przez ucznia " + email);
             } else
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
@@ -96,5 +93,53 @@ public class CourseService {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    public ResponseEntity<Void> deleteStudent(Principal principal, String id, String email) {
+        String teacherEmail = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent() || userRepository.findUserByEmail(teacherEmail).isPresent()) {
+            if (!courseRepository.findCourseByUuid(id).get().getTeachers().contains(userRepository.findUserByEmail(teacherEmail).get())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            Course c = courseRepository.findCourseByUuid(id).get();
+            c.getStudents().remove(userRepository.findUserByEmail(email).get());
+            courseRepository.save(c);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    public ResponseEntity<Void> changeAccess(Principal principal, String id, CourseDTO courseDTO) {
+        String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
+            Course c = courseRepository.findCourseByUuid(id).get();
+            if (!c.getTeachers().contains(userRepository.findUserByEmail(email).get())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            c.setAccessToCourse(AccessToCourse.valueOf(courseDTO.accessToCourse().toString()));
+            courseRepository.save(c);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    public ResponseEntity<Void> join(Principal principal, String id) {
+        String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
+            Course c = courseRepository.findCourseByUuid(id).get();
+            if (c.getAccessToCourse() == AccessToCourse.PUBLIC) {
+                c.getStudents().add(userRepository.findUserByEmail(email).get());
+                courseRepository.save(c);
+                return ResponseEntity.status(HttpStatus.OK).build();
+            } else if (c.getAccessToCourse() == AccessToCourse.CLOSED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            } else if (c.getAccessToCourse() == AccessToCourse.PASSWORD) {
+                //TODO
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+            }
+        } else
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

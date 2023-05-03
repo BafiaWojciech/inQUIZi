@@ -20,7 +20,8 @@ public class CourseDTOMapper implements Function<Course, CourseDTO> {
                 key.getStudents()
                         .stream()
                         .map(User::getEmail)
-                        .toList()
+                        .toList(),
+                key.getAccessToCourse()
         );
     }
 }
