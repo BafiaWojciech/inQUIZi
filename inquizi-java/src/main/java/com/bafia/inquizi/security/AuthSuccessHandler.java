@@ -28,7 +28,7 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
         UserDetails principal = (UserDetails) authentication.getPrincipal();
         var user = userService.getUserByEmail(principal.getUsername());
         String token = jwtUtils.createJwt(user.getEmail());
@@ -37,5 +37,4 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         response.addHeader("Content-Type", "application/json");
         response.getWriter().write(objectMapper.writeValueAsString(JwtResponseDTO.of(token, refreshToken)));
     }
-
 }

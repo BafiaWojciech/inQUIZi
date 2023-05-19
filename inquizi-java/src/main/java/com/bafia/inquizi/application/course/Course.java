@@ -1,5 +1,6 @@
 package com.bafia.inquizi.application.course;
 
+import com.bafia.inquizi.application.set.Deck;
 import com.bafia.inquizi.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,11 +23,15 @@ public class Course {
     @Column
     private String name;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-    @JoinTable(name = "courses_teachers",
-            joinColumns = { @JoinColumn(name = "course_id") },
-            inverseJoinColumns = { @JoinColumn(name = "teacher_id") })
-    private Set<User> teachers = new HashSet<>();
+    @Column
+    boolean isClosed = false;
+
+    @Column(unique = true)
+    String accessCode;
+
+    @OneToOne
+    @JoinColumn(nullable = false, name = "teacher_id")
+    private User teacher;
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
     @JoinTable(name = "courses_students",
@@ -34,6 +39,7 @@ public class Course {
             inverseJoinColumns = { @JoinColumn(name = "student_id") })
     private Set<User> students = new HashSet<>();
 
-    @Column
-    private AccessToCourse accessToCourse;
+    @OneToMany(mappedBy = "course")
+    private List<Deck> decks = new ArrayList<>();;
+
 }

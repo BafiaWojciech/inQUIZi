@@ -2,14 +2,12 @@ package com.bafia.inquizi;
 
 import com.bafia.inquizi.user.Role;
 import com.bafia.inquizi.user.User;
-import com.bafia.inquizi.user.UserRepository;
 import com.bafia.inquizi.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 
 @Component

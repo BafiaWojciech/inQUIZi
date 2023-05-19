@@ -23,6 +23,7 @@ public class RefreshToken {
     @Builder.Default
     private String uuid = UUID.randomUUID().toString();
 
+    //TODO nie powinien być przechowywany refresh-token w bazie, doczytać o "jti" w JWT tokenie -> wystarczy jego przechowywać (jako NanoID)
     @Column
     private String token;
 

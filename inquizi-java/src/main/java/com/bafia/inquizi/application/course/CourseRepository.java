@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface CourseRepository extends JpaRepository<Course, Long> {
     Optional<Course> findCourseByUuid(String uuid);
 
-    @Query("SELECT c FROM courses c JOIN c.students s JOIN c.teachers t WHERE t.email = :email OR s.email = :email")
+    Optional<Course> findCourseByAccessCode(String accessCode);
+
+    @Query("SELECT c FROM courses c LEFT JOIN c.students s WHERE s.email = :email OR c.teacher.email = :email")
     List<Course> findAllWithUsers(@Param("email") String email);
 }

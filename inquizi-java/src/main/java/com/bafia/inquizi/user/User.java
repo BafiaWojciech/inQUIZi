@@ -49,12 +49,6 @@ public class User implements UserDetails {
     private List<RefreshToken> refreshToken = new ArrayList<>();;
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-    @JoinTable(name = "courses_teachers",
-            joinColumns = { @JoinColumn(name = "teacher_id") },
-            inverseJoinColumns = { @JoinColumn(name = "course_id") })
-    private List<Course> coursesAsTeacher = new ArrayList<>();
-
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
     @JoinTable(name = "courses_students",
             joinColumns = { @JoinColumn(name = "student_id") },
             inverseJoinColumns = { @JoinColumn(name = "course_id") })

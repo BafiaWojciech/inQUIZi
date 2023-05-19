@@ -13,15 +13,13 @@ public class CourseDTOMapper implements Function<Course, CourseDTO> {
         return new CourseDTO(
                 key.getName(),
                 key.getUuid(),
-                key.getTeachers()
-                        .stream()
-                        .map(User::getEmail)
-                        .toList(),
+                key.isClosed(),
+                key.getAccessCode(),
+                key.getTeacher().getEmail(),
                 key.getStudents()
                         .stream()
                         .map(User::getEmail)
-                        .toList(),
-                key.getAccessToCourse()
+                        .toList()
         );
     }
 }

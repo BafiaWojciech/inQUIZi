@@ -34,5 +34,4 @@ public class JsonObjectAuthenticationFilter extends UsernamePasswordAuthenticati
             throw new RuntimeException(e);
         }
     }
-
 }

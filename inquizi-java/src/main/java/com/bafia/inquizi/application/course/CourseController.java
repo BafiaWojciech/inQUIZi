@@ -26,15 +26,21 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getAll(principal));
     }
 
-    @PutMapping("/{id}/change-access")
+    @PutMapping("/{id}/open")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<Void> changeAccess(Principal principal, @PathVariable String id, @RequestBody CourseDTO courseDTO) {
-        return courseService.changeAccess(principal, id, courseDTO);
+    public ResponseEntity<CourseDTO> open(Principal principal, @PathVariable String id) {
+        return courseService.open(principal, id);
     }
 
-    @PutMapping("/{id}/join")
-    public ResponseEntity<Void> join(Principal principal, @PathVariable String id) {
-        return courseService.join(principal, id);
+    @PutMapping("/{id}/close")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> close(Principal principal, @PathVariable String id) {
+        return courseService.close(principal, id);
+    }
+
+    @PutMapping("/join/{code}")
+    public ResponseEntity<Void> join(Principal principal, @PathVariable String code) {
+        return courseService.join(principal, code);
     }
 
     @PutMapping("/{id}/leave")
@@ -47,7 +53,7 @@ public class CourseController {
     public ResponseEntity<Void> delete(Principal principal, @PathVariable String id) {
         return courseService.delete(principal, id);
     }
-
+    
     @DeleteMapping("/{courseId}/students/{email}")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<Void> deleteStudent(Principal principal, @PathVariable String courseId, @PathVariable String email) {
