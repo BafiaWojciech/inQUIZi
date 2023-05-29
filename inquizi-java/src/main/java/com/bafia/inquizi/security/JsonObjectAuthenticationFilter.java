@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class JsonObjectAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectdeckMapper = new ObjectMapper();
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
@@ -24,7 +24,7 @@ public class JsonObjectAuthenticationFilter extends UsernamePasswordAuthenticati
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
-            LoginDTO authRequest = objectMapper.readValue(sb.toString(), LoginDTO.class);
+            LoginDTO authRequest = objectdeckMapper.readValue(sb.toString(), LoginDTO.class);
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                     authRequest.getEmail(), authRequest.getPassword()
             );

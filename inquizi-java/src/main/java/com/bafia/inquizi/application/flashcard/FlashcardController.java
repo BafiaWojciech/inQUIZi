@@ -1,9 +1,11 @@
 package com.bafia.inquizi.application.flashcard;
 
-import org.springframework.http.HttpStatus;
+import com.bafia.inquizi.application.flashcard.dto.FlashcardDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -16,15 +18,25 @@ public class FlashcardController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Flashcard flashcard) {
-        flashcardService.create(flashcard);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> create(Principal principal, @RequestBody FlashcardDTO flashcard, @RequestParam long deck) {
+        return flashcardService.create(principal, flashcard, deck);
     }
 
     @GetMapping
-    public ResponseEntity<List<Flashcard>> findAll() {
-        List<Flashcard> flashcardList = flashcardService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(flashcardList);
+    public ResponseEntity<List<FlashcardDTO>> findAll(Principal principal, @RequestParam long deck) {
+        return flashcardService.findAll(principal, deck);
     }
 
+    @PutMapping("/edit")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> edit(Principal principal, @RequestBody FlashcardDTO flashcard, @RequestParam long deck) {
+        return flashcardService.edit(principal, flashcard, deck);
+    }
+
+    @DeleteMapping("/{flashcard_id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> delete(Principal principal, @PathVariable long flashcard_id) {
+        return flashcardService.delete(principal, flashcard_id);
+    }
 }

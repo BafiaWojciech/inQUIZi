@@ -21,7 +21,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectdeckMapper = new ObjectMapper();
     private final UserService userService;
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
@@ -35,6 +35,6 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String refreshToken = refreshTokenService.createToken(user);
         response.addHeader("Authorization", "Bearer " + token);
         response.addHeader("Content-Type", "application/json");
-        response.getWriter().write(objectMapper.writeValueAsString(JwtResponseDTO.of(token, refreshToken)));
+        response.getWriter().write(objectdeckMapper.writeValueAsString(JwtResponseDTO.of(token, refreshToken, user.getRole())));
     }
 }

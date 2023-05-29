@@ -1,6 +1,6 @@
 package com.bafia.inquizi.application.course;
 
-import com.bafia.inquizi.application.set.Deck;
+import com.bafia.inquizi.application.deck.Deck;
 import com.bafia.inquizi.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,9 +17,6 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Builder.Default
-    private String uuid = UUID.randomUUID().toString();
-
     @Column
     private String name;
 
@@ -28,6 +25,9 @@ public class Course {
 
     @Column(unique = true)
     String accessCode;
+
+    @OneToMany(mappedBy = "course")
+    private List<Deck> decks = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(nullable = false, name = "teacher_id")
@@ -38,8 +38,4 @@ public class Course {
             joinColumns = { @JoinColumn(name = "course_id") },
             inverseJoinColumns = { @JoinColumn(name = "student_id") })
     private Set<User> students = new HashSet<>();
-
-    @OneToMany(mappedBy = "course")
-    private List<Deck> decks = new ArrayList<>();;
-
 }

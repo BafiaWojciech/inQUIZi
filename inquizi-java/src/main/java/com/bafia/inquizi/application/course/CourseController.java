@@ -28,13 +28,13 @@ public class CourseController {
 
     @PutMapping("/{id}/open")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<CourseDTO> open(Principal principal, @PathVariable String id) {
+    public ResponseEntity<CourseDTO> open(Principal principal, @PathVariable Long id) {
         return courseService.open(principal, id);
     }
 
     @PutMapping("/{id}/close")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<Void> close(Principal principal, @PathVariable String id) {
+    public ResponseEntity<Void> close(Principal principal, @PathVariable Long id) {
         return courseService.close(principal, id);
     }
 
@@ -44,19 +44,19 @@ public class CourseController {
     }
 
     @PutMapping("/{id}/leave")
-    public ResponseEntity<Void> leave(Principal principal, @PathVariable String id) {
+    public ResponseEntity<Void> leave(Principal principal, @PathVariable Long id) {
         return courseService.leave(principal, id);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<Void> delete(Principal principal, @PathVariable String id) {
+    public ResponseEntity<Void> delete(Principal principal, @PathVariable Long id) {
         return courseService.delete(principal, id);
     }
     
     @DeleteMapping("/{courseId}/students/{email}")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<Void> deleteStudent(Principal principal, @PathVariable String courseId, @PathVariable String email) {
+    public ResponseEntity<Void> deleteStudent(Principal principal, @PathVariable Long courseId, @PathVariable String email) {
         return courseService.deleteStudent(principal, courseId, email);
     }
 }

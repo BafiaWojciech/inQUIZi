@@ -43,7 +43,7 @@ public class RefreshTokenService {
         }
         String jwt = jwtUtils.createJwt(token.getUser().getEmail());
         updateToken(token);
-        return JwtResponseDTO.of(jwt, token.getToken());
+        return JwtResponseDTO.of(jwt, token.getToken(), token.getUser().getRole());
     }
 
     private void updateToken(RefreshToken token) {

@@ -2,7 +2,6 @@ package com.bafia.inquizi.application.course;
 
 import com.bafia.inquizi.application.course.dto.CourseDTO;
 import com.bafia.inquizi.application.course.dto.CourseDTOMapper;
-import com.bafia.inquizi.register.confirmation.ConfirmationCode;
 import com.bafia.inquizi.user.User;
 import com.bafia.inquizi.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
-    private final CourseDTOMapper mapper;
+    private final CourseDTOMapper deckMapper;
 
     public CourseDTO create(Principal principal, CourseDTO courseDTO) {
         String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
@@ -35,7 +34,7 @@ public class CourseService {
         course.setTeacher(teacher);
         course.setClosed(true);
         courseRepository.save(course);
-        return mapper.apply(course);
+        return deckMapper.apply(course);
     }
 
     public List<CourseDTO> getAll(Principal principal) {
@@ -43,36 +42,35 @@ public class CourseService {
         List<Course> result = courseRepository.findAllWithUsers(email);
         return result
                 .stream()
-                .map(mapper)
+                .map(deckMapper)
                 .collect(Collectors.toList());
     }
 
-    public ResponseEntity<Void> leave(Principal principal, String id) {
-        String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
-            Course course = courseRepository.findCourseByUuid(id).get();
-            if (course.getTeacher() != userRepository.findUserByEmail(email).get()) {
-                course.getStudents().remove(userRepository.findUserByEmail(email).get());
-                courseRepository.save(course);
-                return ResponseEntity.status(HttpStatus.OK).build();
-            }
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<Void> leave(Principal principal, Long id) {
+        if(courseRepository.findById(id).isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        Course course = courseRepository.findById(id).get();
+        if(!hasStudentAccess(course, principal))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        String email = ((UsernamePasswordAuthenticationToken) principal).getPrincipal().toString();
+        course.getStudents().remove(userRepository.findUserByEmail(email).get());
+        courseRepository.save(course);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    public ResponseEntity<Void> delete(Principal principal, String id) {
+    public ResponseEntity<Void> delete(Principal principal, Long id) {
         String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
-            courseRepository.delete(courseRepository.findCourseByUuid(id).get());
+        if (courseRepository.findById(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
+            courseRepository.delete(courseRepository.findById(id).get());
             return ResponseEntity.status(HttpStatus.OK).build();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    public ResponseEntity<Void> deleteStudent(Principal principal, String id, String email) {
+    public ResponseEntity<Void> deleteStudent(Principal principal, Long id, String email) {
         String teacherEmail = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent() || userRepository.findUserByEmail(teacherEmail).isPresent()) {
-            Course c = courseRepository.findCourseByUuid(id).get();
+        if (courseRepository.findById(id).isPresent() || userRepository.findUserByEmail(email).isPresent() || userRepository.findUserByEmail(teacherEmail).isPresent()) {
+            Course c = courseRepository.findById(id).get();
             if (c.getTeacher().getEmail().equals(teacherEmail)) {
                 c.getStudents().remove(userRepository.findUserByEmail(email).get());
                 courseRepository.save(c);
@@ -81,7 +79,6 @@ public class CourseService {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-
 
     public ResponseEntity<Void> join(Principal principal, String code) {
         String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
@@ -97,29 +94,28 @@ public class CourseService {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    public ResponseEntity<CourseDTO>open(Principal principal, String id) {
-        String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        if (courseRepository.findCourseByUuid(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
-            Course c = courseRepository.findCourseByUuid(id).get();
-            c.setClosed(false);
-            c.setAccessCode(generateAccessCode());
-            courseRepository.save(c);
-            CourseDTO dto = mapper.apply(c);
-            return ResponseEntity.ok(dto);
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<CourseDTO>open(Principal principal, Long id) {
+        if(courseRepository.findById(id).isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        Course course = courseRepository.findById(id).get();
+        if(!hasTeacherAccess(course, principal))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        course.setClosed(false);
+        course.setAccessCode(generateAccessCode());
+        courseRepository.save(course);
+        return ResponseEntity.ok(deckMapper.apply(course));
     }
 
-    public ResponseEntity<Void> close(Principal principal, String id) {
-        String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        if (courseRepository.findCourseByAccessCode(id).isPresent() || userRepository.findUserByEmail(email).isPresent()) {
-            Course c = courseRepository.findCourseByAccessCode(id).get();
-            c.setClosed(true);
-            c.setAccessCode(null);
-            courseRepository.save(c);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<Void> close(Principal principal, Long id) {
+        if(courseRepository.findById(id).isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        Course course = courseRepository.findById(id).get();
+        if(!hasTeacherAccess(course, principal))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        course.setClosed(true);
+        course.setAccessCode(null);
+        courseRepository.save(course);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     private String generateAccessCode() {
@@ -142,5 +138,19 @@ public class CourseService {
             }
         } while(courseRepository.findCourseByAccessCode(sb.toString()).isPresent());
         return sb.toString();
+    }
+
+    private boolean hasTeacherAccess(Course course, Principal principal) {
+        String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if(courseRepository.findById(course.getId()).isEmpty() || userRepository.findUserByEmail(email).isEmpty())
+            return false;
+        return course.getTeacher().equals(userRepository.findUserByEmail(email).get());
+    }
+
+    private boolean hasStudentAccess(Course course, Principal principal) {
+        String email = (String) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if(courseRepository.findById(course.getId()).isEmpty() || userRepository.findUserByEmail(email).isEmpty())
+            return false;
+        return course.getStudents().contains(userRepository.findUserByEmail(email).get());
     }
 }

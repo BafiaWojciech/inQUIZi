@@ -4,8 +4,8 @@ import java.util.List;
 
 
 public record CourseDTO(
+        Long id,
         String name,
-        String UUID,
         boolean isClosed,
         String accessCode,
         String teacherEmail,

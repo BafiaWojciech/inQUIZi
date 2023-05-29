@@ -1,9 +1,8 @@
 package com.bafia.inquizi.application.flashcard;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.bafia.inquizi.application.course.Course;
+import com.bafia.inquizi.application.deck.Deck;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
@@ -15,5 +14,8 @@ public class Flashcard {
 
     private String front;
     private String back;
-    private Boolean flag;
+
+    @ManyToOne
+    @JoinColumn(nullable = false, name = "deck_id")
+    private Deck deck;
 }

@@ -11,8 +11,8 @@ public class CourseDTOMapper implements Function<Course, CourseDTO> {
     @Override
     public CourseDTO apply(Course key) {
         return new CourseDTO(
+                key.getId(),
                 key.getName(),
-                key.getUuid(),
                 key.isClosed(),
                 key.getAccessCode(),
                 key.getTeacher().getEmail(),

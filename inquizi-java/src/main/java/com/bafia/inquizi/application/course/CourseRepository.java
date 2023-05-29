@@ -11,8 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
-    Optional<Course> findCourseByUuid(String uuid);
-
     Optional<Course> findCourseByAccessCode(String accessCode);
 
     @Query("SELECT c FROM courses c LEFT JOIN c.students s WHERE s.email = :email OR c.teacher.email = :email")
